@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 
-import { io, Socket } from "socket.io-client";
+import { io } from "socket.io-client";
 
 interface ServerIsoTimestamps {
   startTimestamp?: string,
@@ -16,7 +16,7 @@ interface Timer {
   milliseconds: number,
 }
 
-const socket = io("http://192.168.1.95:3000/");
+const socket = io("http://localhost:3000/");
 
 function calculateTimer(timestamps: ServerIsoTimestamps, timeDiff: number): Timer {
 
@@ -32,7 +32,7 @@ function calculateTimer(timestamps: ServerIsoTimestamps, timeDiff: number): Time
     }
 
     return {
-      hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+      hours: Math.floor(distance / (1000 * 60 * 60)),
       minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
       seconds: Math.floor((distance % (1000 * 60)) / 1000),
       milliseconds: Math.floor((distance % (1000)) / 10),
@@ -74,7 +74,13 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
+      <body className="App-body">
+        <p>
+          {timer?.hours?.toString()}:
+          {timer?.minutes?.toString()}:
+          {timer?.seconds?.toString()}.
+          {timer?.milliseconds?.toString()}
+        </p>
           <button type="button" onClick={() => socket.emit("start")}>
             start
           </button>
@@ -84,11 +90,7 @@ function App() {
           <button type="button" onClick={() => socket.emit("reset")}>
             reset
           </button>
-        <p>h: {timer?.hours?.toString()}</p>
-        <p>m: {timer?.minutes?.toString()}</p>
-        <p>s: {timer?.seconds?.toString()}</p>
-        <p>ms: {timer?.milliseconds?.toString()}</p>
-      </header>
+      </body>
     </div>
   )
 }

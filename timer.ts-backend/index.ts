@@ -30,7 +30,9 @@ io.on("connection", (socket) => {
   });
 
   socket.on("stop", () => {
-    timer.endTimestamp = new Date();
+    if (timer.endTimestamp === undefined) {
+      timer.endTimestamp = new Date();
+    }
 
     timer.nowTimestamp = new Date();
     io.emit("timer", timer);
