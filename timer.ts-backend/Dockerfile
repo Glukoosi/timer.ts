@@ -11,3 +11,4 @@ FROM node:18
 WORKDIR /src
 COPY --from=builder /src/dist /src
 COPY --from=builder /src/node_modules /src/node_modules
+CMD node index.js
