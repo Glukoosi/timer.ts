@@ -10,7 +10,7 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 
 import { TimerButton } from "./Button"
 
@@ -32,8 +32,6 @@ const darkTheme = createTheme({
     mode: 'dark',
   },
 });
-
-const socket = io("http://localhost:3000/");
 
 const calculateTimer = (timestamps: ServerIsoTimestamps, timeDiff: number): Timer => {
 
@@ -69,15 +67,22 @@ const App = () => {
 
   const [timer, setTimer] = useState<Timer | undefined>(undefined)
   const [timestamps, setTimestamps] = useState<ServerIsoTimestamps>({})
-
   const [timeDiff, setTimeDiff] = useState(0);
+  const [socket, setSocket] = useState<Socket>();
+
 
   useEffect(() => {
-    socket.on("timer", (serverTimestamps) => {
-      const serverTime = new Date(serverTimestamps.nowTimestamp).getTime();
-      setTimeDiff(serverTime - new Date().getTime());
-      setTimestamps(serverTimestamps)
-    });
+    setSocket(io("http://localhost:3000/"));
+  }, [])
+
+  useEffect(() => {
+    if (socket !== undefined) {
+      socket.on("timer", (serverTimestamps) => {
+        const serverTime = new Date(serverTimestamps.nowTimestamp).getTime();
+        setTimeDiff(serverTime - new Date().getTime());
+        setTimestamps(serverTimestamps)
+      });
+    }
   }, [socket]);
 
   useEffect(() => {
@@ -86,7 +91,7 @@ const App = () => {
       setTimer(timerObj)
     }, 10)
     return () => clearInterval(interval)
-  });
+  }, [timestamps]);
 
 
   return (
