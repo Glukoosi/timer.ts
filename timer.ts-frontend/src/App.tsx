@@ -1,5 +1,14 @@
 import { useEffect, useState } from 'react'
-import './App.css'
+
+import { Button, ButtonGroup, Grid } from '@mui/material';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+
+import Typography from '@mui/material/Typography';
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
 
 import { io } from "socket.io-client";
 
@@ -10,11 +19,17 @@ interface ServerIsoTimestamps {
 }
 
 interface Timer {
-  hours: number,
-  minutes: number,
-  seconds: number,
-  milliseconds: number,
+  hours: string,
+  minutes: string,
+  seconds: string,
+  milliseconds: string,
 }
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+  },
+});
 
 const socket = io("http://localhost:3000/");
 
@@ -32,18 +47,18 @@ function calculateTimer(timestamps: ServerIsoTimestamps, timeDiff: number): Time
     }
 
     return {
-      hours: Math.floor(distance / (1000 * 60 * 60)),
-      minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-      seconds: Math.floor((distance % (1000 * 60)) / 1000),
-      milliseconds: Math.floor((distance % (1000)) / 10),
+      hours: (Math.floor(distance / (1000 * 60 * 60))).toString(),
+      minutes: ('0' + Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).slice(-2),
+      seconds: ('0' + Math.floor((distance % (1000 * 60)) / 1000)).slice(-2),
+      milliseconds: ('0' + Math.floor((distance % (1000)) / 10)).slice(-2),
     }
 
   } else {
     return {
-      hours: 0,
-      minutes: 0,
-      seconds: 0,
-      milliseconds: 0,
+      hours: '0',
+      minutes: '00',
+      seconds: '00',
+      milliseconds: '00',
     }
   }
 }
@@ -73,25 +88,31 @@ function App() {
 
 
   return (
-    <div className="App">
-      <body className="App-body">
-        <p>
-          {timer?.hours?.toString()}:
-          {timer?.minutes?.toString()}:
-          {timer?.seconds?.toString()}.
-          {timer?.milliseconds?.toString()}
-        </p>
-          <button type="button" onClick={() => socket.emit("start")}>
+  <ThemeProvider theme={darkTheme}>
+  <CssBaseline />
+  <div className="App">
+    <Grid container justifyContent="center" direction="column" alignItems="center" style={{ minHeight: '100vh' }}>
+      <Typography variant="h3">
+          {timer?.hours}:
+          {timer?.minutes}:
+          {timer?.seconds}.
+          {timer?.milliseconds}
+        </Typography>
+
+        <ButtonGroup variant="outlined" aria-label="outlined button group">
+          <Button  variant="contained" type="button" onClick={() => socket.emit("start")}>
             start
-          </button>
-          <button type="button" onClick={() => socket.emit("stop")}>
+          </Button>
+          <Button  variant="contained" type="button" onClick={() => socket.emit("stop")}>
             stop
-          </button>
-          <button type="button" onClick={() => socket.emit("reset")}>
+          </Button>
+          <Button  variant="contained" type="button" onClick={() => socket.emit("reset")}>
             reset
-          </button>
-      </body>
-    </div>
+          </Button>
+        </ButtonGroup>
+      </Grid>
+  </div>
+  </ThemeProvider>
   )
 }
 
