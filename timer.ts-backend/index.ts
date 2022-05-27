@@ -22,7 +22,13 @@ io.on("connection", (socket) => {
   socket.emit("timer", timer);
 
   socket.on("start", () => {
-    timer.startTimestamp = new Date();
+    if (timer.endTimestamp !== undefined && timer.startTimestamp !== undefined) {
+      const diff = timer.endTimestamp.getTime() - timer.startTimestamp.getTime();
+      timer.startTimestamp = new Date(new Date().getTime() - diff);
+    } else {
+      timer.startTimestamp = new Date();
+    }
+
     timer.endTimestamp = undefined;
 
     timer.nowTimestamp = new Date();

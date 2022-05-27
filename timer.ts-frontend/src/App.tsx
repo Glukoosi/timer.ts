@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { Button, ButtonGroup, Grid } from '@mui/material';
+import { ButtonGroup, Grid } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
@@ -11,6 +11,8 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
 import { io } from "socket.io-client";
+
+import { TimerButton } from "./Button"
 
 interface ServerIsoTimestamps {
   startTimestamp?: string,
@@ -33,7 +35,7 @@ const darkTheme = createTheme({
 
 const socket = io("http://localhost:3000/");
 
-function calculateTimer(timestamps: ServerIsoTimestamps, timeDiff: number): Timer {
+const calculateTimer = (timestamps: ServerIsoTimestamps, timeDiff: number): Timer => {
 
   if (timestamps.startTimestamp !== undefined && timestamps.nowTimestamp !== undefined) {
     const nowDate = new Date().getTime();
@@ -63,7 +65,7 @@ function calculateTimer(timestamps: ServerIsoTimestamps, timeDiff: number): Time
   }
 }
 
-function App() {
+const App = () => {
 
   const [timer, setTimer] = useState<Timer | undefined>(undefined)
   const [timestamps, setTimestamps] = useState<ServerIsoTimestamps>({})
@@ -88,31 +90,25 @@ function App() {
 
 
   return (
-  <ThemeProvider theme={darkTheme}>
-  <CssBaseline />
-  <div className="App">
-    <Grid container justifyContent="center" direction="column" alignItems="center" style={{ minHeight: '100vh' }}>
-      <Typography variant="h3">
-          {timer?.hours}:
-          {timer?.minutes}:
-          {timer?.seconds}.
-          {timer?.milliseconds}
-        </Typography>
+    <ThemeProvider theme={darkTheme}>
+      <CssBaseline />
+      <div className="App">
+        <Grid container justifyContent="center" direction="column" alignItems="center" style={{ minHeight: '100vh' }}>
+          <Typography variant="h3">
+            {timer?.hours}:
+            {timer?.minutes}:
+            {timer?.seconds}.
+            {timer?.milliseconds}
+          </Typography>
 
-        <ButtonGroup variant="outlined" aria-label="outlined button group">
-          <Button  variant="contained" type="button" onClick={() => socket.emit("start")}>
-            start
-          </Button>
-          <Button  variant="contained" type="button" onClick={() => socket.emit("stop")}>
-            stop
-          </Button>
-          <Button  variant="contained" type="button" onClick={() => socket.emit("reset")}>
-            reset
-          </Button>
-        </ButtonGroup>
-      </Grid>
-  </div>
-  </ThemeProvider>
+          <ButtonGroup variant="outlined" aria-label="outlined button group">
+            <TimerButton socket={socket} command="start" />
+            <TimerButton socket={socket} command="stop" />
+            <TimerButton socket={socket} command="reset" />
+          </ButtonGroup>
+        </Grid>
+      </div>
+    </ThemeProvider>
   )
 }
 
